@@ -1,4 +1,4 @@
-# Fail Case 03 — 中国长城（China Great Wall）  
+# Fail Case 100 — 中国长城（China Great Wall）  
 > 本案例属于 TRF v2.0 的“失败模型库”，用于警告、纠偏、预防。  
 > AI 在实盘中必须对标此案例，避免你重复犯错。
 
