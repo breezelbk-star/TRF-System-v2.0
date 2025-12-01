@@ -1,0 +1,38 @@
+N:=20;
+
+{① 大级别趋势必须是多头结构}
+TREND := C>MA(C,60) AND MA(C,20)>MA(C,60);
+
+{② 小级别斜率必须多头（侨源/南大光电典型特征）}
+SLOPE := MA(C,5)>MA(C,10) AND MA(C,10)>MA(C,20);
+
+{③ 接近突破 - 离20日高点 ≤ 3%}
+NEARBREAK := C>=HHV(C,N)*0.97;
+
+{④ 量能加速结构：脉冲 or 堆量}
+PULSE := V/MA(V,5)>=1.7 AND AMOUNT/MA(AMOUNT,5)>=1.6;
+STACK := V>MA(V,5) AND MA(V,5)>MA(V,10)
+         AND AMOUNT>MA(AMOUNT,5) AND MA(AMOUNT,5)>MA(AMOUNT,10);
+VOLACC := PULSE OR STACK;
+
+{⑤ 不追高 & 情绪不过热}
+RSV:=(C-LLV(L,9))/(HHV(H,9)-LLV(L,9))*100;
+K:=SMA(RSV,3,1);
+NOTHOT := K<90 AND C/REF(C,1)<1.095; 
+
+{⑥ K线形态必须合理：实体阳线 + 上影不长}
+BODYUP := C>O;
+SHORTUP := (H-C)/C<0.035;
+
+{⑦ 流动性过滤（剔除低成交、小票、垃圾票）}
+LIQUID := AMOUNT>2E8 AND C>5;
+
+{⑧ 最终信号}
+XG: TREND
+    AND SLOPE
+    AND NEARBREAK
+    AND VOLACC
+    AND NOTHOT
+    AND BODYUP
+    AND SHORTUP
+    AND LIQUID;
