@@ -1,59 +1,53 @@
-
-{================ TRF-A-Breakout-V2.0 · 第一波突破扫描器（侨源/南大光电型） ================}
-
+{================ TRF-D-Momentum-V2.0 · 趋势动量精选器（南大光电型） ================}
+{ 建议路径：indicators/momentum/TRF_D_Momentum_V2_0.tn6 }
 
 N:=20;
 
-{① 大级别趋势必须是多头结构（站上60日，20日线上拐）}
-TREND :=
-    C > MA(C,60)
-AND MA(C,20) > MA(C,60);
+{================ ① 趋势与量能基础 =================}
+DIF:=EMA(C,12)-EMA(C,26);
+DEA:=EMA(DIF,9);
 
-{② 小级别斜率必须多头（5>10>20）——侨源/南大光电共性}
-SLOPEOK :=
-    MA(C,5) > MA(C,10)
-AND MA(C,10) > MA(C,20);
+{放量上破MA20（趋势重新转强）}
+BRKMA20:=CROSS(C,MA(C,N)) AND V>MA(V,5)*1.3;
 
-{③ 接近突破：离近 N 日高点 ≤3%}
-NEARBREAK :=
-    C >= HHV(C,N) * 0.97;
+{MACD翻红 / 站上（动量恢复）}
+MACDUP:=DIF>DEA;
 
-{④ 量能加速结构：脉冲 or 堆量}
-PULSE :=
-    V >= MA(V,5) * 1.7
-AND AMOUNT >= MA(AMOUNT,5) * 1.6;       {单日脉冲，侨源型}
+{近2日量能持续强于5日均量}
+VOL2DAY:=REF(V,0)>MA(V,5) AND REF(V,1)>MA(V,5);
 
-STACK :=
-    V > MA(V,5)
-AND MA(V,5) > MA(V,10)
-AND AMOUNT > MA(AMOUNT,5)
-AND MA(AMOUNT,5) > MA(AMOUNT,10);       {连续堆量，川仪型}
+{今日成交额显著放大}
+VALBIG:=AMOUNT>MA(AMOUNT,5)*1.5;
 
-VOLACC := PULSE OR STACK;
-
-{⑤ 情绪不过热：K线不过火，且当日涨幅不过头}
+{================ ② KDJ 情绪不过热 =================}
 RSV:=(C-LLV(L,9))/(HHV(H,9)-LLV(L,9))*100;
 K:=SMA(RSV,3,1);
-NOTHOT :=
-    K < 90
-AND C/REF(C,1) < 1.095;
+NOTHOT:=K<85;
 
-{⑥ K线结构：阳线 + 上影不长}
-BODYUP := C > O;
-SHORTUP := (H - C) / C < 0.035;
+{================ ③ 换手率约束 =================}
+TURN:=V/CAPITAL*100;
 
-{⑦ 价格带 + 流动性过滤}
-PRICEOK := C >= 5 AND C <= 200;
-LIQUID := AMOUNT > 200000000;           {≥2亿成交额，剔除冷门票}
+{================ ④ 基础降噪过滤 =================}
+TREND:=C>MA(C,60);               {中期多头}
+NOTNEW:=BARSCOUNT(C)>120;        {上市时间 >120 日}
+PRICEOK:=C>=5 AND C<=120;        {价格带：5~120 元}
+LIQUID:=AMOUNT>200000000;        {成交额 ≥2 亿}
+TURNOK:=TURN>=2 AND TURN<=20;    {换手率 2%~20%}
 
-{⑧ 最终信号：TRF 模式 A · 侨源 / 南大光电 型第一波突破}
+{================ ⑤ 近突破 + 多头斜率 =================}
+CORE:=BRKMA20 AND MACDUP;        {趋势 + 动量同时满足}
+NEARBRK:=C>=HHV(C,20)*0.98;      {收盘接近20日新高 98%}
+SLOPEOK:=MA(C,5)>MA(C,10) AND MA(C,10)>MA(C,20);   {5>10>20 多头结构}
+
+{================ ⑥ 最终信号（TRF-D 趋势动量精选） =================}
 XG:
-    TREND
-AND SLOPEOK
-AND NEARBREAK
-AND VOLACC
-AND NOTHOT
-AND BODYUP
-AND SHORTUP
+    CORE
+AND (VOL2DAY OR VALBIG)
+AND TREND
+AND NOTNEW
 AND PRICEOK
-AND LIQUID;
+AND LIQUID
+AND TURNOK
+AND NOTHOT
+AND NEARBRK
+AND SLOPEOK;
