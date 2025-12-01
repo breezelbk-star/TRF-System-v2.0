@@ -1,46 +1,59 @@
-{=============================================================
-   TRF v2.0 — Breakout Accel Scanner（模块 A）
-   作者：Jimmy（交易体系） + GPT（模型工程）
-   功能：识别“右侧突破 + 放量加速”的科技主升浪起爆点
-   适用：半导体 / AI服务器 / 工控 / 安全计算等科技主线
-==============================================================}
+
+{================ TRF-A-Breakout-V2.0 · 第一波突破扫描器（侨源/南大光电型） ================}
 
 
 N:=20;
 
-{① 大级别趋势必须是多头结构}
-TREND := C>MA(C,60) AND MA(C,20)>MA(C,60);
+{① 大级别趋势必须是多头结构（站上60日，20日线上拐）}
+TREND :=
+    C > MA(C,60)
+AND MA(C,20) > MA(C,60);
 
-{② 小级别斜率必须多头（侨源/南大光电典型特征）}
-SLOPE := MA(C,5)>MA(C,10) AND MA(C,10)>MA(C,20);
+{② 小级别斜率必须多头（5>10>20）——侨源/南大光电共性}
+SLOPEOK :=
+    MA(C,5) > MA(C,10)
+AND MA(C,10) > MA(C,20);
 
-{③ 接近突破 - 离20日高点 ≤ 3%}
-NEARBREAK := C>=HHV(C,N)*0.97;
+{③ 接近突破：离近 N 日高点 ≤3%}
+NEARBREAK :=
+    C >= HHV(C,N) * 0.97;
 
 {④ 量能加速结构：脉冲 or 堆量}
-PULSE := V/MA(V,5)>=1.7 AND AMOUNT/MA(AMOUNT,5)>=1.6;
-STACK := V>MA(V,5) AND MA(V,5)>MA(V,10)
-         AND AMOUNT>MA(AMOUNT,5) AND MA(AMOUNT,5)>MA(AMOUNT,10);
+PULSE :=
+    V >= MA(V,5) * 1.7
+AND AMOUNT >= MA(AMOUNT,5) * 1.6;       {单日脉冲，侨源型}
+
+STACK :=
+    V > MA(V,5)
+AND MA(V,5) > MA(V,10)
+AND AMOUNT > MA(AMOUNT,5)
+AND MA(AMOUNT,5) > MA(AMOUNT,10);       {连续堆量，川仪型}
+
 VOLACC := PULSE OR STACK;
 
-{⑤ 不追高 & 情绪不过热}
+{⑤ 情绪不过热：K线不过火，且当日涨幅不过头}
 RSV:=(C-LLV(L,9))/(HHV(H,9)-LLV(L,9))*100;
 K:=SMA(RSV,3,1);
-NOTHOT := K<90 AND C/REF(C,1)<1.095; 
+NOTHOT :=
+    K < 90
+AND C/REF(C,1) < 1.095;
 
-{⑥ K线形态必须合理：实体阳线 + 上影不长}
-BODYUP := C>O;
-SHORTUP := (H-C)/C<0.035;
+{⑥ K线结构：阳线 + 上影不长}
+BODYUP := C > O;
+SHORTUP := (H - C) / C < 0.035;
 
-{⑦ 流动性过滤（剔除低成交、小票、垃圾票）}
-LIQUID := AMOUNT>2E8 AND C>5;
+{⑦ 价格带 + 流动性过滤}
+PRICEOK := C >= 5 AND C <= 200;
+LIQUID := AMOUNT > 200000000;           {≥2亿成交额，剔除冷门票}
 
-{⑧ 最终信号}
-XG: TREND
-    AND SLOPE
-    AND NEARBREAK
-    AND VOLACC
-    AND NOTHOT
-    AND BODYUP
-    AND SHORTUP
-    AND LIQUID;
+{⑧ 最终信号：TRF 模式 A · 侨源 / 南大光电 型第一波突破}
+XG:
+    TREND
+AND SLOPEOK
+AND NEARBREAK
+AND VOLACC
+AND NOTHOT
+AND BODYUP
+AND SHORTUP
+AND PRICEOK
+AND LIQUID;
