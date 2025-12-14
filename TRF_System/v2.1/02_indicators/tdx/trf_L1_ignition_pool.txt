@@ -1,0 +1,12 @@
+{TRF L1 - Ignition Pool}
+N:=60;
+
+R1:=(HHV(H,N)-LLV(L,N))/LLV(L,N)<1.20;
+
+U1:=C/REF(C,1)>=1.08;
+V1:=VOL>=1.50*MA(VOL,20);
+S1:=U1 AND V1;
+
+M1:=MA(C,20)>MA(C,60)*0.95;
+
+R1 AND S1 AND M1;
