@@ -1,0 +1,13 @@
+{TRF L2 - Confirm Pool}
+N:=60;
+
+B1:=C>=HHV(H,N)*0.98;
+
+T1:=MA(C,20)>MA(C,60)
+AND MA(C,60)>REF(MA(C,60),5);
+
+C1:=COUNT(C/REF(C,1)>=1.06,3)>=2;
+
+V1:=VOL>=MA(VOL,20);
+
+B1 AND T1 AND C1 AND V1;
