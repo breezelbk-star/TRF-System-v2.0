@@ -1,0 +1,62 @@
+{==========================================
+TRF-A_Attack_Overlay  (Attach Indicator)
+Purpose: Ignition / Lock-up / Acceleration / Risk
+==========================================}
+
+NBASE:=120;
+
+{--- 1) Base (platform) compression ---}
+BASE_RNG:=(HHV(H,NBASE)-LLV(L,NBASE))/LLV(L,NBASE);
+BASEOK:=BASE_RNG<1.10;
+
+{--- 2) Ignition (true breakout candle) ---}
+IGN_UP:=C/REF(C,1)>=1.06;
+IGN_VOL:=V>=1.20*MA(V,20);
+IGN_STR:=C>O AND C>=H*0.95;
+IGNITE:=BASEOK AND IGN_UP AND IGN_VOL AND IGN_STR;
+
+{--- 3) Trend readiness (not fully started yet) ---}
+TRREADY:=MA(C,20)>=MA(C,60)*0.92 AND MA(C,20)<=MA(C,60)*1.05;
+
+{--- 4) Lock-up consolidation after ignition (time digestion) ---}
+LOCK_VOL:=MA(V,5)<MA(V,20);
+LOCK_HOLD:=COUNT(C/REF(C,1)<=0.92,10)=0;
+LOCK:=LOCK_VOL AND LOCK_HOLD AND C>=MA(C,10)*0.96;
+
+{--- 5) Acceleration (2nd push / main wave) ---}
+ACC_UP:=C/REF(C,1)>=1.04;
+ACC_VOL:=V>=1.30*MA(V,20);
+ACC_NEAR:=C>=HHV(C,20)*0.98;
+ACC:=ACC_UP AND ACC_VOL AND ACC_NEAR AND C>MA(C,10);
+
+{--- 6) Distribution / risk (blow-off / heavy sell) ---}
+RISK1:=V>=1.80*MA(V,20) AND C<O AND (O-C)/O>=0.04;
+RISK2:=H=HHV(H,20) AND (H-C)/C>=0.06 AND V>=1.50*MA(V,20);
+RISK:=RISK1 OR RISK2;
+
+{================ Plot =================}
+
+MA10:MA(C,10);
+MA20:MA(C,20);
+MA60:MA(C,60);
+
+STICKLINE(IGNITE,LOW,HIGH,0,0),COLORFFCC00;
+DRAWICON(IGNITE,LOW*0.985,1);
+
+STICKLINE(LOCK,LOW,HIGH,0,0),COLOR00CCFF;
+DRAWICON(LOCK,LOW*0.990,11);
+
+STICKLINE(ACC,LOW,HIGH,0,0),COLORFF00FF;
+DRAWICON(ACC,LOW*0.990,9);
+
+STICKLINE(RISK,LOW,HIGH,0,0),COLOR00FF00;
+DRAWICON(RISK,HIGH*1.015,2);
+
+DRAWTEXT(IGNITE,LOW*0.965,'IGN'),COLORFFCC00;
+DRAWTEXT(LOCK,LOW*0.970,'LOCK'),COLOR00CCFF;
+DRAWTEXT(ACC,LOW*0.975,'ACC'),COLORFF00FF;
+DRAWTEXT(RISK,HIGH*1.020,'RISK'),COLOR00FF00;
+
+{Optional info line}
+DRAWTEXT_FIX(1,0.01,0.02,0,
+'TRF-A Overlay | IGN=Ignition | LOCK=Lock-up | ACC=Acceleration | RISK=Distribution'),COLORAAAAAA;
