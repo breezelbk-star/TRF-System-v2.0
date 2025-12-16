@@ -60,3 +60,9 @@ DRAWTEXT(RISK,HIGH*1.020,'RISK'),COLOR00FF00;
 {Optional info line}
 DRAWTEXT_FIX(1,0.01,0.02,0,
 'TRF-A Overlay | IGN=Ignition | LOCK=Lock-up | ACC=Acceleration | RISK=Distribution'),COLORAAAAAA;
+
+
+怎么用（最少要记住3句）
+ • IGN（黄）出现：放进池子，允许次日/两日内关注，但不等于必买。
+ • LOCK（蓝）持续：这是侨源那种“强行把MA5/MA10拉上来”的核心特征（强控盘）。
+ • RISK（绿）出现：优先按“主升减仓纪律”执行（尤其是高位放量阴/长上影放量）。
