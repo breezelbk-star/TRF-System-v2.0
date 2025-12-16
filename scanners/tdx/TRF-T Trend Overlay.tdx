@@ -1,0 +1,61 @@
+{==============================
+ TRF-T Trend Overlay Indicator
+ 可复制趋势股（10%-25%）
+==============================}
+
+MA10:MA(C,10),COLORWHITE;
+MA20:MA(C,20),COLORYELLOW;
+MA30:MA(C,30),COLORCYAN;
+
+{--- 趋势背景判断 ---}
+TREND_OK:=C>MA30 AND MA30>=REF(MA30,1);
+
+{--- 背景着色（淡绿）---}
+STICKLINE(TREND_OK,LOW,HIGH,0,0),COLORRGB(200,255,200);
+
+{==============================
+ 信号逻辑（只做提示）
+==============================}
+
+{1. 趋势确认（回踩结束 / 再启动）}
+TREND_CONFIRM:=
+    C>MA10
+AND MA10>MA20
+AND MA20>=MA30
+AND REF(C,1)<=MA20;
+
+DRAWICON(TREND_CONFIRM,LOW*0.98,1);
+DRAWTEXT(TREND_CONFIRM,LOW*0.96,'TRF-T OK'),COLORGREEN;
+
+{2. 回踩观察区（不买，只盯）}
+PULLBACK_ZONE:=
+    C<=MA20*1.02
+AND C>=MA30
+AND MA30>=REF(MA30,1);
+
+DRAWICON(PULLBACK_ZONE,LOW*0.99,2);
+
+{3. 趋势破坏（必须撤退）}
+TREND_BREAK:=
+    C<MA30
+OR MA30<REF(MA30,1);
+
+DRAWICON(TREND_BREAK,HIGH*1.02,15);
+DRAWTEXT(TREND_BREAK,HIGH*1.04,'EXIT'),COLORRED;
+
+
+你实际怎么用（非常关键）
+
+✅ 正确使用方式
+ • 先用 L1 / L2 选股
+ • 再打开日线 + 加载这个指标
+ • 只问三件事：
+看到什么                            动作
+背景是淡绿                     允许观察
+出现 TRF-T OK 可以             开始计划
+跌破 MA30 / 出现 EXIT           无条件撤
+
+❌ 错误用法（一定避免）
+ • ❌ 单靠这个指标找股票
+ • ❌ 看到 TRF-T OK 就满仓
+ • ❌ 在非趋势股上强行套用
